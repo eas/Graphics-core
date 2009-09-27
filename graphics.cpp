@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#define D3D_DEBUG_INFO 1
 
 #include "graphics.h"
 
@@ -59,8 +58,6 @@ namespace D3D
 		ID3DXBuffer* shaderCode = NULL;
 
 		CheckResult( D3DXAssembleShaderFromFile(fileName, NULL, NULL, NULL, &shaderCode, NULL) );
-		DWORD* buf = static_cast<DWORD*>(shaderCode->GetBufferPointer());
-		buf;
 		CheckResult( device->CreateVertexShader(static_cast<DWORD*>(shaderCode->GetBufferPointer()), &shader_) );
 
 		shaderCode->Release();
@@ -119,8 +116,8 @@ namespace D3D
 	IndexBuffer::IndexBuffer(GraphicDevice& device, UINT nIndices)
 		:device_(device), indexBuffer_(NULL)
 	{
-		CheckResult(device->CreateIndexBuffer(	nIndices*sizeof(UINT),
-												D3DUSAGE_WRITEONLY, D3DFMT_INDEX32,
+		CheckResult(device->CreateIndexBuffer(	nIndices*sizeof(Index),
+												D3DUSAGE_WRITEONLY, indicesFormat,
 												D3DPOOL_DEFAULT, &indexBuffer_, NULL ));
 	}
 
@@ -130,12 +127,12 @@ namespace D3D
 			indexBuffer_->Release();
 	}
 
-	void IndexBuffer::SetIndices(const UINT indices[], UINT nIndices)
+	void IndexBuffer::SetIndices(const Index indices[], UINT nIndices)
 	{
 		void* buffer = NULL;
 
-		CheckResult( indexBuffer_->Lock(0, nIndices*sizeof(UINT), &buffer, 0) );
-		memcpy( buffer, indices, nIndices*sizeof(UINT));
+		CheckResult( indexBuffer_->Lock(0, nIndices*sizeof(Index), &buffer, 0) );
+		memcpy( buffer, indices, nIndices*sizeof(Index));
 		CheckResult( indexBuffer_->Unlock() );
 	}
 

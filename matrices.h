@@ -8,13 +8,7 @@ inline const D3DXMATRIX UnityMatrix()
 						0.0f, 0.0f, 1.0f, 0.0f,
 						0.0f, 0.0f, 0.0f, 1.0f );
 }
-inline const D3DXMATRIX ScaleMatrix( const D3DXVECTOR3& scale )
-{
-	return D3DXMATRIX( scale.x,		0.0f,		0.0f,		0.0f,
-					   0.0f,		scale.y,	0.0f,		0.0f,
-					   0.0f,		0.0f,		scale.z,	0.0f,
-					   0.0f,		0.0f,		0.0f,		1.0f );
-}
+
 inline const D3DXMATRIX ScaleMatrix( float scaleX, float scaleY, float scaleZ )
 {
 	return D3DXMATRIX( scaleX,		0.0f,		0.0f,		0.0f,
@@ -23,13 +17,11 @@ inline const D3DXMATRIX ScaleMatrix( float scaleX, float scaleY, float scaleZ )
 					   0.0f,		0.0f,		0.0f,		1.0f );
 }
 
-inline const D3DXMATRIX TranslationMatrix( const D3DXVECTOR3& translation )
+inline const D3DXMATRIX ScaleMatrix( const D3DXVECTOR3& scale )
 {
-	return D3DXMATRIX( 1.0f,	0.0f,	0.0f,	translation.x,
-					   0.0f,	1.0f,	0.0f,	translation.y,
-					   0.0f,	0.0f,	1.0f,	translation.z,
-					   0.0f,	0.0f,	0.0f,	1.0f );
+	return ScaleMatrix( scale.x, scale.y, scale.z );
 }
+
 inline const D3DXMATRIX TranslationMatrix( float dx, float dy, float dz )
 {
 	return D3DXMATRIX( 1.0f,	0.0f,	0.0f,	dx,
@@ -37,7 +29,10 @@ inline const D3DXMATRIX TranslationMatrix( float dx, float dy, float dz )
 					   0.0f,	0.0f,	1.0f,	dz,
 					   0.0f,	0.0f,	0.0f,	1.0f );
 }
-
+inline const D3DXMATRIX TranslationMatrix( const D3DXVECTOR3& translation )
+{
+	return TranslationMatrix( translation.x, translation.y, translation.z );
+}
 inline const D3DXMATRIX RotateZMatrix( float angle )
 {
 	return D3DXMATRIX(  cosf(angle),	sinf(angle),	0.0f,		0.0f,
@@ -73,17 +68,16 @@ const D3DXMATRIX ViewMatrix( const D3DXVECTOR3& eye, const D3DXVECTOR3& at, cons
 
 	D3DXVECTOR3 b;
 	D3DXVec3Cross( &b, &c, &a );
-	c = c / 2.0f;
+	c /= 2.0f;
 
 	D3DXVECTOR3 d(	-D3DXVec3Dot(&eye, &a),
 					-D3DXVec3Dot(&eye, &b),
 					-D3DXVec3Dot(&eye, &c) );
 
-	D3DXMATRIX temp =  D3DXMATRIX(	a.x,	a.y,	a.z,	d.x,
+	return D3DXMATRIX(	a.x,	a.y,	a.z,	d.x,
 						b.x,	b.y,	b.z,	d.y,
 						c.x,	c.y,	c.z,	d.z,
 						0.0f,	0.0f,	0.0f,	1.0f );
-	return temp;
 }
 
 const D3DXMATRIX ProjectiveMatrix( float front, float back )

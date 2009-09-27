@@ -5,6 +5,12 @@
 #include "exception"
 #include <d3dx9.h>
 
+#ifdef _DEBUG
+#pragma comment( lib, "graphics-core-debug.lib" )
+#else
+#pragma comment( lib, "graphics-core-release.lib" )
+#endif
+
 
 namespace D3D
 {
@@ -22,6 +28,10 @@ namespace D3D
 	{
 		float x, y, z;
 		DWORD color;
+
+		Vertex() {}
+		Vertex( float x, float y, float z, DWORD color)
+			:x(x), y(y), z(z), color(color) {}
 	};
 	static D3DVERTEXELEMENT9 vertexDeclaration[] = 
 	{
@@ -29,6 +39,9 @@ namespace D3D
 		{0, 12, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
 		D3DDECL_END()
 	};
+
+	typedef UINT Index;
+	static D3DFORMAT indicesFormat = D3DFMT_INDEX32;
 
 	inline void CheckResult(HRESULT errorCode)
 	{
@@ -70,7 +83,6 @@ namespace D3D
 				DWORD count = NULL, const D3DRECT* rects = NULL )
 				:device_(device)
 		{
-			//assert( (count == NULL && rects == NULL) || (count != NULL && rects != NULL) );
 			CheckResult( device->Clear( count, rects, flags, color, z, stencil ) );
 			CheckResult( device->BeginScene() );
 		}
@@ -152,7 +164,7 @@ namespace D3D
 	public:
 		IndexBuffer(GraphicDevice& device, UINT nIndices);
 		~IndexBuffer();
-		void SetIndices(const UINT indices[], UINT nIndices);
+		void SetIndices(const Index indices[], UINT nIndices);
 		inline IDirect3DIndexBuffer9* GetBuffer()
 		{
 			return indexBuffer_;
