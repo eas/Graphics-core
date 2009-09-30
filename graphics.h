@@ -32,13 +32,19 @@ namespace D3D
 		Vertex() {}
 		Vertex( float x, float y, float z, DWORD color)
 			:x(x), y(y), z(z), color(color) {}
+		static const D3DVERTEXELEMENT9 vertexDeclaration[3];
 	};
-	static D3DVERTEXELEMENT9 vertexDeclaration[] = 
+
+	namespace Traits
 	{
-		{0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
-		{0, 12, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
-		D3DDECL_END()
-	};
+		class VertexDecl
+		{
+		public:
+			static const D3DVERTEXELEMENT9 vertexDeclaration[3];
+			static void CopyFunc( void* buffer, const Vertex vertices[], unsigned nVertices );
+		};
+	} //namespace Traits
+
 
 	typedef UINT Index;
 	static D3DFORMAT indicesFormat = D3DFMT_INDEX32;
@@ -46,7 +52,9 @@ namespace D3D
 	inline void CheckResult(HRESULT errorCode)
 	{
 		if( errorCode != D3D_OK )
+		{
 			throw Error(errorCode);
+		}
 	}
 
 	class GraphicDevice
@@ -131,6 +139,7 @@ namespace D3D
 		IDirect3DVertexShader9* shader_;
 		GraphicDevice device_;
 		D3DXMATRIX worldMatrix_, viewMatrix_, projectiveMatrix_;
+		static const unsigned matrixDimension = 4;
 	};
 
 	class VertexBuffer
@@ -205,5 +214,6 @@ namespace D3D
 		IDirect3DVertexDeclaration9* vertexDeclaration_;
 		GraphicDevice device_;
 	};
+
 
 } // namespace D3D

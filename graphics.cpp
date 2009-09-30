@@ -23,12 +23,26 @@ namespace D3D
 		}
 	}
 
+	const D3DVERTEXELEMENT9 Vertex::vertexDeclaration[] = 
+	{
+		{0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
+		{0, 12, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
+		D3DDECL_END()
+	};
+
+	void Traits::VertexDecl::CopyFunc(void *buffer, const D3D::Vertex vertices[], unsigned nVertices)
+	{
+		memcpy(buffer, vertices, sizeof(Vertex)*nVertices);
+	}
+
 	GraphicDevice::GraphicDevice(HWND hWnd, D3DPRESENT_PARAMETERS &params)
 		:directX_(NULL),
 		device_(NULL)
 	{
 		if( NULL == ( directX_ = Direct3DCreate9( D3D_SDK_VERSION ) ) )
+		{
 			throw Error(E_FAIL);
+		}
 		CheckResult( directX_->CreateDevice( D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd,
 										  D3DCREATE_HARDWARE_VERTEXPROCESSING,
 										  &params, &device_ ) );
@@ -45,11 +59,15 @@ namespace D3D
 	GraphicDevice::~GraphicDevice()
 	{
 
-		if( device_ != NULL )
+		if( NULL != device_ )
+		{
 			device_->Release();
+		}
 
-		if( directX_ != NULL )
+		if( NULL != directX_ )
+		{
 			directX_->Release();
+		}
 	}
 
 	Shader::Shader(GraphicDevice& device, LPCTSTR fileName)
@@ -65,8 +83,10 @@ namespace D3D
 
 	Shader::~Shader()
 	{
-		if( shader_ != NULL )
+		if( NULL != shader_ )
+		{
 			shader_->Release();
+		}
 	}
 
 	void Shader::SetWorldMatrix( const D3DXMATRIX& worldMatrix )
@@ -87,7 +107,33 @@ namespace D3D
 
 	void Shader::SetShaderMatrix()
 	{
-		CheckResult( device_->SetVertexShaderConstantF( 0, projectiveMatrix_*viewMatrix_*worldMatrix_, 4 ) );
+		CheckResult( device_->SetVertexShaderConstantF( 0, projectiveMatrix_*viewMatrix_*worldMatrix_, matrixDimension ) );
+	}
+
+
+	IndexBuffer::IndexBuffer(GraphicDevice& device, UINT nIndices)
+		:device_(device), indexBuffer_(NULL)
+	{
+		CheckResult(device->CreateIndexBuffer(	nIndices*sizeof(Index),
+												D3DUSAGE_WRITEONLY, indicesFormat,
+												D3DPOOL_DEFAULT, &indexBuffer_, NULL ));
+	}
+
+	IndexBuffer::~IndexBuffer()
+	{
+		if( NULL != indexBuffer_ )
+		{
+			indexBuffer_->Release();
+		}
+	}
+
+	void IndexBuffer::SetIndices(const Index indices[], UINT nIndices)
+	{
+		void* buffer = NULL;
+
+		CheckResult( indexBuffer_->Lock(0, nIndices*sizeof(Index), &buffer, 0) );
+		memcpy( buffer, indices, nIndices*sizeof(Index));
+		CheckResult( indexBuffer_->Unlock() );
 	}
 
 	VertexBuffer::VertexBuffer(GraphicDevice& device, UINT nVertices)
@@ -100,8 +146,10 @@ namespace D3D
 
 	VertexBuffer::~VertexBuffer()
 	{
-		if(vertexBuffer_ != NULL)
+		if( NULL != vertexBuffer_ )
+		{
 			vertexBuffer_->Release();
+		}
 	}
 
 	void VertexBuffer::SetVertices(const Vertex vertices[], UINT nVertices)
@@ -113,39 +161,17 @@ namespace D3D
 		CheckResult( vertexBuffer_->Unlock() );
 	}
 
-	IndexBuffer::IndexBuffer(GraphicDevice& device, UINT nIndices)
-		:device_(device), indexBuffer_(NULL)
-	{
-		CheckResult(device->CreateIndexBuffer(	nIndices*sizeof(Index),
-												D3DUSAGE_WRITEONLY, indicesFormat,
-												D3DPOOL_DEFAULT, &indexBuffer_, NULL ));
-	}
-
-	IndexBuffer::~IndexBuffer()
-	{
-		if(indexBuffer_ != NULL)
-			indexBuffer_->Release();
-	}
-
-	void IndexBuffer::SetIndices(const Index indices[], UINT nIndices)
-	{
-		void* buffer = NULL;
-
-		CheckResult( indexBuffer_->Lock(0, nIndices*sizeof(Index), &buffer, 0) );
-		memcpy( buffer, indices, nIndices*sizeof(Index));
-		CheckResult( indexBuffer_->Unlock() );
-	}
-
 	VertexDeclaration::VertexDeclaration(GraphicDevice& device)
 		:device_(device), vertexDeclaration_(NULL)
 	{
-		CheckResult( device->CreateVertexDeclaration(D3D::vertexDeclaration, &vertexDeclaration_) );
+		CheckResult( device->CreateVertexDeclaration(Vertex::vertexDeclaration, &vertexDeclaration_) );
 	}
 
 	VertexDeclaration::~VertexDeclaration()
 	{
-		if(vertexDeclaration_ != NULL)
+		if( NULL != vertexDeclaration_ )
+		{
 			vertexDeclaration_->Release();
+		}
 	}
-
 } // namespace D3D
