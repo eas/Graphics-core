@@ -35,16 +35,6 @@ namespace D3D
 		static const D3DVERTEXELEMENT9 vertexDeclaration[3];
 	};
 
-	namespace Traits
-	{
-		class VertexDecl
-		{
-		public:
-			static const D3DVERTEXELEMENT9 vertexDeclaration[3];
-			static void CopyFunc( void* buffer, const Vertex vertices[], unsigned nVertices );
-		};
-	} //namespace Traits
-
 
 	typedef UINT Index;
 	static D3DFORMAT indicesFormat = D3DFMT_INDEX32;

@@ -3,7 +3,9 @@
 #include "graphics.h"
 
 #include "d3dx9.h"
-
+#ifndef NDEBUG
+	#define new new( _CLIENT_BLOCK, __FILE__, __LINE__)
+#endif
 namespace D3D
 {
 	Error::Error(HRESULT errorCode)
@@ -30,10 +32,6 @@ namespace D3D
 		D3DDECL_END()
 	};
 
-	void Traits::VertexDecl::CopyFunc(void *buffer, const D3D::Vertex vertices[], unsigned nVertices)
-	{
-		memcpy(buffer, vertices, sizeof(Vertex)*nVertices);
-	}
 
 	GraphicDevice::GraphicDevice(HWND hWnd, D3DPRESENT_PARAMETERS &params)
 		:directX_(NULL),
