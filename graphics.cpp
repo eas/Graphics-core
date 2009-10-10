@@ -1,6 +1,8 @@
 #include "stdafx.h"
 
 #include "graphics.h"
+#include <tchar.h>
+
 
 #include "d3dx9.h"
 #ifndef NDEBUG
@@ -13,16 +15,17 @@ namespace D3D
 	{
 		switch(errorCode)
 		{
-		case D3DERR_DEVICELOST:			error_ = "D3DERR_DEVICELOST"; break;
-		case D3DERR_INVALIDCALL:		error_ = "D3DERR_INVALIDCALL"; break;
-		case D3DERR_NOTAVAILABLE:		error_ = "D3DERR_NOTAVAILABLE"; break;
-		case D3DERR_OUTOFVIDEOMEMORY:	error_ = "D3DERR_OUTOFVIDEOMEMORY"; break;
-		case E_FAIL:					error_ = "E_FAIL"; break;
-		case D3DXERR_INVALIDDATA:		error_ = "D3DXERR_INVALIDDATA"; break;
-		case E_OUTOFMEMORY:				error_ = "E_OUTOFMEMORY"; break;
+		case D3DERR_DEVICELOST:			error_ = _T("D3DERR_DEVICELOST"); break;
+		case D3DERR_INVALIDCALL:		error_ = _T("D3DERR_INVALIDCALL"); break;
+		case D3DERR_NOTAVAILABLE:		error_ = _T("D3DERR_NOTAVAILABLE"); break;
+		case D3DERR_OUTOFVIDEOMEMORY:	error_ = _T("D3DERR_OUTOFVIDEOMEMORY"); break;
+		case E_FAIL:					error_ = _T("E_FAIL"); break;
+		case D3DXERR_INVALIDDATA:		error_ = _T("D3DXERR_INVALIDDATA"); break;
+		case E_OUTOFMEMORY:				error_ = _T("E_OUTOFMEMORY"); break;
 		default:
-			error_ = "Unknown error";
+			error_ = _T("Unknown error");
 		}
+		MessageBox(NULL, error_, NULL, MB_OK);
 	}
 
 	const D3DVERTEXELEMENT9 Vertex::vertexDeclaration[] = 
@@ -87,25 +90,26 @@ namespace D3D
 		}
 	}
 
-	void Shader::SetWorldMatrix( const D3DXMATRIX& worldMatrix )
+	void Shader::SetWorldMatrix( const D3DXMATRIX& worldMatrix, UINT startRegister )
 	{
 		worldMatrix_ = worldMatrix;
-		SetShaderMatrix();
+		SetShaderMatrix(startRegister);
 	}
-	void Shader::SetViewMatrix( const D3DXMATRIX& viewMatrix )
+	void Shader::SetViewMatrix( const D3DXMATRIX& viewMatrix, UINT startRegister )
 	{
 		viewMatrix_ = viewMatrix;
-		SetShaderMatrix();
+		SetShaderMatrix(startRegister);
 	}
-	void Shader::SetProjectiveMatrix( const D3DXMATRIX& projectiveMatrix )
+	void Shader::SetProjectiveMatrix( const D3DXMATRIX& projectiveMatrix, UINT startRegister )
 	{
 		projectiveMatrix_ = projectiveMatrix;
-		SetShaderMatrix();
+		SetShaderMatrix(startRegister);
 	}
 
-	void Shader::SetShaderMatrix()
+	void Shader::SetShaderMatrix( UINT startRegister )
 	{
-		CheckResult( device_->SetVertexShaderConstantF( 0, projectiveMatrix_*viewMatrix_*worldMatrix_, matrixDimension ) );
+		CheckResult( device_->SetVertexShaderConstantF( startRegister, projectiveMatrix_*viewMatrix_*worldMatrix_,
+					 matrixDimension ) );
 	}
 
 

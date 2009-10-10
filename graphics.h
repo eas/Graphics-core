@@ -21,7 +21,7 @@ namespace D3D
 		Error(HRESULT errorCode);
 
 		HRESULT errorCode_;
-		char* error_;
+		TCHAR* error_;
 	};
 
 	struct Vertex
@@ -110,9 +110,13 @@ namespace D3D
 		{
 			return shader_;
 		}
-		void SetWorldMatrix( const D3DXMATRIX& worldMatrix );
-		void SetProjectiveMatrix( const D3DXMATRIX& projectiveMatrix );
-		void SetViewMatrix( const D3DXMATRIX& viewMatrix );
+		void SetWorldMatrix( const D3DXMATRIX& worldMatrix, UINT startRegister = 0 );
+		void SetProjectiveMatrix( const D3DXMATRIX& projectiveMatrix, UINT startRegister = 0 );
+		void SetViewMatrix( const D3DXMATRIX& viewMatrix, UINT startRegister = 0 );
+		void SetConstantF( UINT startRegister, const float* data, unsigned nFloat4Vectors )
+		{
+			CheckResult( device_->SetVertexShaderConstantF(startRegister, data, nFloat4Vectors) );
+		}
 		void Use()
 		{
 			CheckResult( device_->SetVertexShader(shader_) );
@@ -122,7 +126,7 @@ namespace D3D
 		Shader(const Shader&);
 		Shader& operator=(const Shader&);
 	public:
-		void SetShaderMatrix();
+		void SetShaderMatrix(UINT startRegister);
 	private:
 
 
