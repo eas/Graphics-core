@@ -111,6 +111,11 @@ namespace D3D
 		CheckResult( device_->SetVertexShaderConstantF( startRegister, projectiveMatrix_*viewMatrix_*worldMatrix_,
 					 matrixDimension ) );
 	}
+	void Shader::SetConstantF( UINT startRegister, float data, unsigned nFloat4Vectors )
+	{
+		D3DXVECTOR4 constant(data, data, data, data);
+		CheckResult( device_->SetVertexShaderConstantF(startRegister, constant, nFloat4Vectors) );
+	}
 
 
 	IndexBuffer::IndexBuffer(GraphicDevice& device, UINT nIndices)
