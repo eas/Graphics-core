@@ -41,7 +41,7 @@ namespace D3D
 
 	inline void CheckResult(HRESULT errorCode)
 	{
-		if( errorCode != D3D_OK )
+		if( D3D_OK != errorCode )
 		{
 			throw Error(errorCode);
 		}
