@@ -29,12 +29,7 @@ namespace D3D
 		MessageBox(NULL, error_, NULL, MB_OK);
 	}
 
-	const D3DVERTEXELEMENT9 Vertex::vertexDeclaration[] = 
-	{
-		{0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
-		{0, 12, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
-		D3DDECL_END()
-	};
+
 
 
 	GraphicDevice::GraphicDevice(HWND hWnd, D3DPRESENT_PARAMETERS &params)
@@ -135,49 +130,10 @@ namespace D3D
 		CheckResult( indexBuffer_->Unlock() );
 	}
 
-	VertexBuffer::VertexBuffer(GraphicDevice& device)
-		:device_(device), vertexBuffer_(NULL), nVerticesMax_(0)
-	{
-	}
-
-	VertexBuffer::VertexBuffer(GraphicDevice& device, UINT nVertices)
-		:device_(device), vertexBuffer_(NULL), nVerticesMax_(nVertices)
-	{
-		CheckResult(device->CreateVertexBuffer( nVertices*sizeof(Vertex),
-												D3DUSAGE_WRITEONLY, 0,
-												D3DPOOL_DEFAULT, &vertexBuffer_, NULL ));
-	}
-
-	VertexBuffer::~VertexBuffer()
-	{
-		if( NULL != vertexBuffer_ )
-		{
-			vertexBuffer_->Release();
-		}
-	}
-
-	void VertexBuffer::SetVertices(const Vertex vertices[], UINT nVertices)
-	{
-		assert( nVertices<nVerticesMax_ || 0 == nVerticesMax_ );
-
-		if( 0 == nVerticesMax_ )
-		{
-			CheckResult(device_->CreateVertexBuffer( nVertices*sizeof(Vertex),
-												D3DUSAGE_WRITEONLY, 0,
-												D3DPOOL_DEFAULT, &vertexBuffer_, NULL ));
-		}
-
-		void* buffer = NULL;
-
-		CheckResult( vertexBuffer_->Lock(0, nVertices*sizeof(Vertex), &buffer, 0) );
-		memcpy( buffer, vertices, nVertices*sizeof(Vertex));
-		CheckResult( vertexBuffer_->Unlock() );
-	}
-
-	VertexDeclaration::VertexDeclaration(GraphicDevice& device)
+	VertexDeclaration::VertexDeclaration(GraphicDevice& device, const D3DVERTEXELEMENT9 vertexDeclaration[])
 		:device_(device), vertexDeclaration_(NULL)
 	{
-		CheckResult( device->CreateVertexDeclaration(Vertex::vertexDeclaration, &vertexDeclaration_) );
+		CheckResult( device->CreateVertexDeclaration(vertexDeclaration, &vertexDeclaration_) );
 	}
 
 	VertexDeclaration::~VertexDeclaration()

@@ -4,6 +4,7 @@
 #include "d3d9.h"
 #include "exception"
 #include <d3dx9.h>
+#include "assert.h"
 
 #ifdef _DEBUG
 #pragma comment( lib, "graphics-core-debug.lib" )
@@ -24,17 +25,15 @@ namespace D3D
 		TCHAR* error_;
 	};
 
-	struct Vertex
+	struct DefaultVertex
 	{
 		float x, y, z;
 		DWORD color;
 
-		Vertex() {}
-		Vertex( float x, float y, float z, DWORD color)
+		DefaultVertex() {};
+		DefaultVertex( float x, float y, float z, DWORD color)
 			:x(x), y(y), z(z), color(color) {}
-		static const D3DVERTEXELEMENT9 vertexDeclaration[3];
 	};
-
 
 	typedef UINT Index;
 	static const D3DFORMAT indicesFormat = D3DFMT_INDEX32;
@@ -132,6 +131,7 @@ namespace D3D
 		static const unsigned matrixDimension = 4;
 	};
 
+	template<class Vertex>
 	class VertexBuffer
 	{
 	public:
@@ -192,7 +192,7 @@ namespace D3D
 	class VertexDeclaration
 	{
 	public:
-		VertexDeclaration(GraphicDevice& device);
+		VertexDeclaration(GraphicDevice& device, const D3DVERTEXELEMENT9 vertexDeclaration[]);
 		~VertexDeclaration();
 		IDirect3DVertexDeclaration9* GetDeclaration()
 		{
@@ -211,4 +211,46 @@ namespace D3D
 	};
 
 
+	template<class Vertex>
+	VertexBuffer<Vertex>::VertexBuffer(GraphicDevice& device)
+		:device_(device), vertexBuffer_(NULL), nVerticesMax_(0)
+	{
+	}
+
+	template<class Vertex>
+	VertexBuffer<Vertex>::VertexBuffer(GraphicDevice& device, UINT nVertices)
+		:device_(device), vertexBuffer_(NULL), nVerticesMax_(nVertices)
+	{
+		CheckResult(device->CreateVertexBuffer( nVertices*sizeof(Vertex),
+												D3DUSAGE_WRITEONLY, 0,
+												D3DPOOL_DEFAULT, &vertexBuffer_, NULL ));
+	}
+
+	template<class Vertex>
+	VertexBuffer<Vertex>::~VertexBuffer()
+	{
+		if( NULL != vertexBuffer_ )
+		{
+			vertexBuffer_->Release();
+		}
+	}
+
+	template<class Vertex>
+	void VertexBuffer<Vertex>::SetVertices(const Vertex vertices[], UINT nVertices)
+	{
+		assert( nVertices<nVerticesMax_ || 0 == nVerticesMax_ );
+
+		if( 0 == nVerticesMax_ )
+		{
+			CheckResult(device_->CreateVertexBuffer( nVertices*sizeof(Vertex),
+												D3DUSAGE_WRITEONLY, 0,
+												D3DPOOL_DEFAULT, &vertexBuffer_, NULL ));
+		}
+
+		void* buffer = NULL;
+
+		CheckResult( vertexBuffer_->Lock(0, nVertices*sizeof(Vertex), &buffer, 0) );
+		memcpy( buffer, vertices, nVertices*sizeof(Vertex));
+		CheckResult( vertexBuffer_->Unlock() );
+	}
 } // namespace D3D
