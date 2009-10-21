@@ -2,6 +2,7 @@
 
 #include "graphics.h"
 #include <tchar.h>
+#include "assert.h"
 
 
 #include "d3dx9.h"
@@ -90,36 +91,18 @@ namespace D3D
 		}
 	}
 
-	void Shader::SetWorldMatrix( const D3DXMATRIX& worldMatrix, UINT startRegister )
-	{
-		worldMatrix_ = worldMatrix;
-		SetShaderMatrix(startRegister);
-	}
-	void Shader::SetViewMatrix( const D3DXMATRIX& viewMatrix, UINT startRegister )
-	{
-		viewMatrix_ = viewMatrix;
-		SetShaderMatrix(startRegister);
-	}
-	void Shader::SetProjectiveMatrix( const D3DXMATRIX& projectiveMatrix, UINT startRegister )
-	{
-		projectiveMatrix_ = projectiveMatrix;
-		SetShaderMatrix(startRegister);
-	}
-
-	void Shader::SetShaderMatrix( UINT startRegister )
-	{
-		CheckResult( device_->SetVertexShaderConstantF( startRegister, projectiveMatrix_*viewMatrix_*worldMatrix_,
-					 matrixDimension ) );
-	}
-	void Shader::SetConstantF( UINT startRegister, float data, unsigned nFloat4Vectors )
+	void Shader::SetConstantF( UINT startRegister, float data )
 	{
 		D3DXVECTOR4 constant(data, data, data, data);
-		CheckResult( device_->SetVertexShaderConstantF(startRegister, constant, nFloat4Vectors) );
+		CheckResult( device_->SetVertexShaderConstantF(startRegister, constant, 1) );
 	}
 
-
+	IndexBuffer::IndexBuffer(GraphicDevice& device)
+		:device_(device), nIndicesMax_(0)
+	{
+	}
 	IndexBuffer::IndexBuffer(GraphicDevice& device, UINT nIndices)
-		:device_(device), indexBuffer_(NULL)
+		:device_(device), indexBuffer_(NULL), nIndicesMax_(nIndices)
 	{
 		CheckResult(device->CreateIndexBuffer(	nIndices*sizeof(Index),
 												D3DUSAGE_WRITEONLY, indicesFormat,
@@ -136,6 +119,15 @@ namespace D3D
 
 	void IndexBuffer::SetIndices(const Index indices[], UINT nIndices)
 	{
+		assert( nIndices<nIndicesMax_|| 0 == nIndicesMax_ );
+
+		if( 0 == nIndicesMax_ )
+		{
+			CheckResult(device_->CreateIndexBuffer(	nIndices*sizeof(Index),
+												D3DUSAGE_WRITEONLY, indicesFormat,
+												D3DPOOL_DEFAULT, &indexBuffer_, NULL ));
+		}
+
 		void* buffer = NULL;
 
 		CheckResult( indexBuffer_->Lock(0, nIndices*sizeof(Index), &buffer, 0) );
@@ -143,8 +135,13 @@ namespace D3D
 		CheckResult( indexBuffer_->Unlock() );
 	}
 
+	VertexBuffer::VertexBuffer(GraphicDevice& device)
+		:device_(device), vertexBuffer_(NULL), nVerticesMax_(0)
+	{
+	}
+
 	VertexBuffer::VertexBuffer(GraphicDevice& device, UINT nVertices)
-		:device_(device), vertexBuffer_(NULL)
+		:device_(device), vertexBuffer_(NULL), nVerticesMax_(nVertices)
 	{
 		CheckResult(device->CreateVertexBuffer( nVertices*sizeof(Vertex),
 												D3DUSAGE_WRITEONLY, 0,
@@ -161,6 +158,15 @@ namespace D3D
 
 	void VertexBuffer::SetVertices(const Vertex vertices[], UINT nVertices)
 	{
+		assert( nVertices<nVerticesMax_ || 0 == nVerticesMax_ );
+
+		if( 0 == nVerticesMax_ )
+		{
+			CheckResult(device_->CreateVertexBuffer( nVertices*sizeof(Vertex),
+												D3DUSAGE_WRITEONLY, 0,
+												D3DPOOL_DEFAULT, &vertexBuffer_, NULL ));
+		}
+
 		void* buffer = NULL;
 
 		CheckResult( vertexBuffer_->Lock(0, nVertices*sizeof(Vertex), &buffer, 0) );

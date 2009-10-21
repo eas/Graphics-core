@@ -37,7 +37,7 @@ namespace D3D
 
 
 	typedef UINT Index;
-	static D3DFORMAT indicesFormat = D3DFMT_INDEX32;
+	static const D3DFORMAT indicesFormat = D3DFMT_INDEX32;
 
 	inline void CheckResult(HRESULT errorCode)
 	{
@@ -106,37 +106,38 @@ namespace D3D
 	{
 	public:
 		Shader(GraphicDevice& device, LPCTSTR fileName);
+
+		void SetConstantF( UINT startRegister, float data );
 		IDirect3DVertexShader9* GetShader()
 		{
 			return shader_;
 		}
-		void SetWorldMatrix( const D3DXMATRIX& worldMatrix, UINT startRegister = 0 );
-		void SetProjectiveMatrix( const D3DXMATRIX& projectiveMatrix, UINT startRegister = 0 );
-		void SetViewMatrix( const D3DXMATRIX& viewMatrix, UINT startRegister = 0 );
-		void SetConstantF( UINT startRegister, float data, unsigned nFloat4Vectors );
+		void SetMatrix( const D3DXMATRIX& matrix, UINT startRegister )
+		{
+			CheckResult( device_->SetVertexShaderConstantF( startRegister, matrix, matrixDimension ) );
+		}		
 		void Use()
 		{
 			CheckResult( device_->SetVertexShader(shader_) );
 		}
+
 		~Shader();
 	private:
 		Shader(const Shader&);
 		Shader& operator=(const Shader&);
-	public:
-		void SetShaderMatrix(UINT startRegister);
 	private:
-
-
 		IDirect3DVertexShader9* shader_;
 		GraphicDevice device_;
-		D3DXMATRIX worldMatrix_, viewMatrix_, projectiveMatrix_;
+
 		static const unsigned matrixDimension = 4;
 	};
 
 	class VertexBuffer
 	{
 	public:
+		VertexBuffer(GraphicDevice& device); // Create object, not buffer
 		VertexBuffer(GraphicDevice& device, UINT nVertices);
+
 		~VertexBuffer();
 		void SetVertices(const Vertex vertices[], UINT nVertices);
 		inline IDirect3DVertexBuffer9* GetBuffer()
@@ -157,11 +158,13 @@ namespace D3D
 
 		IDirect3DVertexBuffer9* vertexBuffer_;
 		GraphicDevice device_;
+		UINT nVerticesMax_;
 	};
 
 	class IndexBuffer
 	{
 	public:
+		IndexBuffer(GraphicDevice& device);
 		IndexBuffer(GraphicDevice& device, UINT nIndices);
 		~IndexBuffer();
 		void SetIndices(const Index indices[], UINT nIndices);
@@ -183,6 +186,7 @@ namespace D3D
 
 		IDirect3DIndexBuffer9* indexBuffer_;
 		GraphicDevice device_;
+		UINT nIndicesMax_;
 	};
 
 	class VertexDeclaration
