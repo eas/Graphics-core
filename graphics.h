@@ -238,7 +238,7 @@ namespace D3D
 	template<class Vertex>
 	void VertexBuffer<Vertex>::SetVertices(const Vertex vertices[], UINT nVertices)
 	{
-		assert( nVertices<nVerticesMax_ || 0 == nVerticesMax_ );
+		assert( nVertices<=nVerticesMax_ || 0 == nVerticesMax_ );
 
 		if( 0 == nVerticesMax_ )
 		{

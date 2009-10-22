@@ -114,7 +114,7 @@ namespace D3D
 
 	void IndexBuffer::SetIndices(const Index indices[], UINT nIndices)
 	{
-		assert( nIndices<nIndicesMax_|| 0 == nIndicesMax_ );
+		assert( nIndices<=nIndicesMax_|| 0 == nIndicesMax_ );
 
 		if( 0 == nIndicesMax_ )
 		{
