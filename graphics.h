@@ -62,10 +62,17 @@ namespace D3D
 		{
 			return device_;
 		}
-		void SetRenderState(D3DRENDERSTATETYPE state, DWORD value)
+		void SetRenderState(D3DRENDERSTATETYPE state, DWORD value);
+		void DrawIndexedPrimitive(D3DPRIMITIVETYPE type,
+								  INT baseVertexIndex,
+								  UINT minIndex,
+								  UINT numVertices,
+								  UINT startIndex,
+								  UINT primitiveCount )
 		{
-			CheckResult( device_->SetRenderState(state, value) );
+			CheckResult( device_->DrawIndexedPrimitive(type, baseVertexIndex, minIndex, numVertices, startIndex, primitiveCount ) );
 		}
+
 	private:
 		IDirect3D9* directX_;
 		IDirect3DDevice9* device_;
@@ -91,8 +98,8 @@ namespace D3D
 		void DrawIndexedPrimitive( D3DPRIMITIVETYPE type,INT baseVertexIndex,UINT minIndex, 
 									UINT numVertices, UINT startIndex, UINT primitiveCount )
 		{
-			CheckResult(device_->DrawIndexedPrimitive(type, baseVertexIndex, minIndex,
-						numVertices, startIndex, primitiveCount));
+			CheckResult(device_->DrawIndexedPrimitive( type, baseVertexIndex, minIndex,
+													   numVertices, startIndex, primitiveCount ));
 		}
 	private:
 		DC(const DC&);
@@ -107,6 +114,7 @@ namespace D3D
 		Shader(GraphicDevice& device, LPCTSTR fileName);
 
 		void SetConstantF( UINT startRegister, float data );
+		void SetConstantF( UINT startRegister, const float* data, UINT nFloat4Vectors );
 		IDirect3DVertexShader9* GetShader()
 		{
 			return shader_;

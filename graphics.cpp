@@ -66,6 +66,16 @@ namespace D3D
 			directX_->Release();
 		}
 	}
+	void GraphicDevice::SetRenderState(D3DRENDERSTATETYPE state, DWORD value)
+	{
+		DWORD curState;
+		CheckResult( device_->GetRenderState(state, &curState) );
+		if( value != curState )
+		{
+			CheckResult( device_->SetRenderState(state, value) );
+		}
+	}
+
 
 	Shader::Shader(GraphicDevice& device, LPCTSTR fileName)
 		:device_(device), shader_(NULL)
@@ -88,9 +98,14 @@ namespace D3D
 
 	void Shader::SetConstantF( UINT startRegister, float data )
 	{
-		D3DXVECTOR4 constant(data, data, data, data);
+		const D3DXVECTOR4 constant(data, data, data, data);
 		CheckResult( device_->SetVertexShaderConstantF(startRegister, constant, 1) );
 	}
+	void Shader::SetConstantF( UINT startRegister, const float* data, UINT nFloat4Vectors )
+	{
+		CheckResult( device_->SetVertexShaderConstantF(startRegister, data, nFloat4Vectors) );
+	}
+
 
 	IndexBuffer::IndexBuffer(GraphicDevice& device)
 		:device_(device), nIndicesMax_(0)
